@@ -3,7 +3,7 @@
     <div v-show="!editing">
       <label><input type="checkbox" v-model="spent"></label>
       <h4 @click="editing = true">{{ item.title }}</h4>
-      <span @click="editing = true">${{ item.price | currency }}</span>
+      <span @click="editing = true"><currency v-bind:number="item.price"></currency></span>
       <button @click="removeItem">X</button>
     </div>
     <form v-show="editing" v-on:submit.prevent="doneEdit">
@@ -17,6 +17,8 @@
 </template>
 
 <script>
+import Currency from './Currency'
+
 export default {
   name: 'item',
   props: ['item'],
@@ -49,15 +51,14 @@ export default {
       this.$store.commit('spentItem', {item, spent})
     }
   },
-  filters: {
-    currency (num) {
-      return Number(num).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')
-    }
+  components: {
+    Currency
   }
 }
 </script>
 
 <style scoped>
+
 h4 {
   margin: 0;
   padding: 0;
@@ -76,10 +77,22 @@ li.item {
 }
 
 .item div label,
-.item div h4,
-.item div span,
 .item div button {
   flex: 0 1 auto;
+}
+
+.item div h4,
+.item div span {
+  flex: 1 1 auto;
+}
+
+.item div h4 {
+  margin-left: 2rem;
+}
+
+.item div span {
+  text-align: right;
+  padding-right: 3rem;
 }
 
 a {

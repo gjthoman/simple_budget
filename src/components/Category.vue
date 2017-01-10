@@ -1,15 +1,15 @@
 <template>
-  <div class="category">
-    <h3 @click="editing = true" v-show="!editing">{{ category.title }}: ${{ items_total | currency }}</h3>
+  <li class="category">
+    <h3 @click="editing = true" v-show="!editing">{{ category.title }}: <currency v-bind:number="items_total"></currency></h3>
     <form v-show="editing" v-on:submit.prevent="doneEdit">
       <input v-model="category.title"
         @keyup.enter="doneEdit">
       <button type="submit">Save</button>
     </form>
-    <h5>Left to spend: ${{ remaining_to_spend | currency }}</h5>
-    <ul>
-      <Item v-for="item in category.items" :item="item"></Item>
-    </ul>
+    <h5>Left to spend: <currency v-bind:number="remaining_to_spend"></currency></h5>
+      <transition-group name="item" tag="ul">
+        <Item v-for="item in category.items" :item="item" v-bind:key="item"></Item>
+      </transition-group>
     <form v-on:submit.prevent="addItem">
       <button type="submit">Add Item</button>
       <input v-model="item_title"
@@ -20,11 +20,12 @@
         placeholder="price">
     </form>
     <button @click="removeCategory">Remove Category</button>
-  </div>
+  </li>
 </template>
 
 <script>
 import Item from './Item'
+import Currency from './Currency'
 var _ = require('lodash/core')
 
 export default {
@@ -61,11 +62,6 @@ export default {
       return remaining
     }
   },
-  filters: {
-    currency (num) {
-      return Number(num).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,')
-    }
-  },
   methods: {
     addItem (e) {
       const title = this.item_title
@@ -90,12 +86,29 @@ export default {
     }
   },
   components: {
-    Item
+    Item,
+    Currency
   }
 }
 </script>
 
 <style scoped>
+.item-item {
+  display: inline-block;
+  margin-right: 10px;
+}
+.item-enter-active{
+  transition: all .5s;
+}
+.item-leave-active {
+  transition: all .3s;
+}
+.item-enter, .item-leave-to, .item-leave-active {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+
 h3, h5, form {
   text-align: center;
 }
@@ -109,8 +122,11 @@ h5 {
 }
 
 .category {
+  position: relative;
   border: 1px solid black;
   padding: 1em;
+  margin: 2rem 1rem;
+  background-color: #fff3db;
 }
 
 ul {
@@ -120,5 +136,11 @@ ul {
 
 a {
   color: #42b983;
+}
+
+button {
+  position: absolute;
+  top: 0;
+  right: 0;
 }
 </style>
